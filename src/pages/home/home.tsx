@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { imageToBase64 } from "../../helpers/image-codec";
 
 const home = () => {
@@ -41,6 +41,7 @@ const home = () => {
   const [job, setJob] = useState<string | "other">();
   const [gender, setGender] = useState<"Male" | "Female" | "other">();
   const [image, setImage] = useState<File>();
+  const closeDialog = useRef<HTMLButtonElement>(null);
 
   return (
     <section id="home">
@@ -93,6 +94,7 @@ const home = () => {
                             console.log(newData);
                             // @ts-ignore
                             dispatch(updateUser(newData as IUser));
+                            closeDialog.current?.click();
                             navigate("/");
                           }}
                         >
@@ -104,6 +106,7 @@ const home = () => {
                                 id="first_name"
                                 name="first_name"
                                 placeholder="Enter your name"
+                                defaultValue={user.first_name}
                               />
                             </div>
                             <div className="flex flex-col space-y-1.5">
@@ -113,6 +116,7 @@ const home = () => {
                                 id="last_name"
                                 name="last_name"
                                 placeholder="Enter your surname"
+                                defaultValue={user.last_name}
                               />
                             </div>
                             <div className="flex flex-col space-y-1.5">
@@ -124,20 +128,16 @@ const home = () => {
                                 placeholder="Enter your age"
                                 type="number"
                                 min={0}
+                                defaultValue={user.age}
                               />
                             </div>
                             <div className="flex flex-col space-y-1.5">
-                              {image ? (
+                              {image && (
                                 <img
                                   src={URL.createObjectURL(image)}
                                   className="w-full object-cover h-[200px] rounded-lg my-5"
                                   alt="alt"
                                 />
-                              ) : (
-                                <Label
-                                  htmlFor="photo"
-                                  className="w-full h-[200px] rounded-lg my-5 bg-slate-900"
-                                ></Label>
                               )}
                               <Label htmlFor="photo">Photo</Label>
                               <Input
@@ -164,6 +164,7 @@ const home = () => {
                                   name="job"
                                   placeholder="Enter custom job"
                                   type="input"
+                                  defaultValue={user.job}
                                 />
                                 <Button
                                   variant="link"
@@ -178,6 +179,7 @@ const home = () => {
                                 <Select
                                   required
                                   name="job"
+                                  defaultValue={user.job}
                                   onValueChange={(value) => {
                                     setJob(value as string | "other");
                                   }}
@@ -219,7 +221,7 @@ const home = () => {
                                   name="gender"
                                   placeholder="Enter custom gender"
                                   type="input"
-                                  value={user.gender}
+                                  defaultValue={user.gender}
                                 />
                                 <Button
                                   variant="link"
@@ -234,6 +236,7 @@ const home = () => {
                                 <Select
                                   required
                                   name="gender"
+                                  defaultValue={user.gender}
                                   onValueChange={(value) => {
                                     setGender(
                                       value as "Male" | "Female" | "other"
@@ -255,11 +258,13 @@ const home = () => {
                             )}
                           </div>
                           <DialogFooter className="py-4">
-                            <DialogClose className="w-full">
-                              <Button type="submit" className="w-full">
-                                Save changes
-                              </Button>
-                            </DialogClose>
+                            <Button type="submit" className="w-full">
+                              Save changes
+                            </Button>
+                            <DialogClose
+                              className="w-full"
+                              ref={closeDialog}
+                            ></DialogClose>
                           </DialogFooter>
                         </form>
                       </DialogContent>
@@ -269,6 +274,7 @@ const home = () => {
               </CardFooter>
             </Card>
           ))}
+          {users.length === 0 && <p>No users</p>}
         </div>
         <Button className="w-full" onClick={() => navigate("/create")}>
           Create user

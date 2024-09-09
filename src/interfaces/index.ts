@@ -3,6 +3,7 @@ export interface IUser {
   first_name: string;
   last_name: string;
   job: string;
+  age: number;
   image: string;
   gender: "male" | "female";
 }
