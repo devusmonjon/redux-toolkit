@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { withLayout } from "../../components/shared/layout/layout";
 import {
   Card,
@@ -7,7 +6,6 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import { useDispatch, useSelector } from "react-redux";
 import { IUser } from "../../interfaces";
 import {
   Dialog,
@@ -27,7 +25,6 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { useRef, useState } from "react";
-import { imageToBase64 } from "../../helpers/image-codec";
 import {
   useDeleteUserMutation,
   useEditUserMutation,
@@ -37,9 +34,6 @@ import axios from "axios";
 
 const home = () => {
   const { data: users, isLoading } = useGetUsersQuery({});
-  const dispatch = useDispatch();
-
-  const navigate = useNavigate();
 
   const [job, setJob] = useState<string | "other">();
   const [gender, setGender] = useState<"Male" | "Female" | "other">();
@@ -74,12 +68,17 @@ const home = () => {
                       variant={"destructive"}
                       className="w-full"
                       onClick={() => deleteUser(user.id as number)}
+                      disabled={isLoadingDelete}
                     >
                       Delete
                     </Button>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full">
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          disabled={isLoadingUpdate}
+                        >
                           Edit Profile
                         </Button>
                       </DialogTrigger>

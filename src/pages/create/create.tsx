@@ -16,13 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { withLayout } from "../../components/shared/layout/layout";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addUser } from "../../store/user-slice/users";
 import { IUser } from "../../interfaces";
-import { imageToBase64 } from "../../helpers/image-codec";
 import { useAddUserMutation } from "../../store/api/user-slice";
 import axios from "axios";
 
@@ -32,8 +28,6 @@ const Create = (): JSX.Element => {
   const [image, setImage] = useState<File>();
 
   const navigate = useNavigate();
-
-  const dispatch = useDispatch();
 
   const [addUser, { isLoading }] = useAddUserMutation();
 
@@ -205,7 +199,9 @@ const Create = (): JSX.Element => {
                 <Button variant="outline" onClick={() => navigate(-1)}>
                   Back
                 </Button>
-                <Button type="submit">Add</Button>
+                <Button type="submit" disabled={isLoading}>
+                  Add
+                </Button>
               </CardFooter>
             </form>
           </CardContent>

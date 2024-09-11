@@ -10,7 +10,7 @@ const baseQuery: BaseQueryFn<
   string, // Args
   unknown
 > = async (args, api, extraOptions) => {
-  const { dispatch } = api;
+  //   const { dispatch } = api;
   const rawBaseQuery = fetchBaseQuery({
     baseUrl: "https://66ded934de4426916ee29fc9.mockapi.io/api/v1",
     // prepareHeaders: (headers) => {
