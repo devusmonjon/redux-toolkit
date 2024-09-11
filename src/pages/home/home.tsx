@@ -50,7 +50,10 @@ const home = () => {
       <div className="container">
         <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 py-4 gap-4">
           {users?.map((user: IUser) => (
-            <Card className="flex flex-col space-y-3 relative" key={user.id}>
+            <Card
+              className="flex flex-col space-y-3 relative pb-[40px]"
+              key={user.id}
+            >
               <CardContent className="w-full">
                 <img
                   src={user.image}
@@ -66,7 +69,7 @@ const home = () => {
                   <h1>Job: {user.job}</h1>
                   <h1>Gender: {user.gender}</h1>
                   <h1 className="pb-[10px]">Bio: {user.bio}</h1>
-                  <div className="w-full flex items-center gap-5">
+                  <div className="max-w-full flex items-center gap-5 absolute bottom-[10px]">
                     <Button
                       variant={"destructive"}
                       className="w-full"
