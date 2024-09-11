@@ -31,6 +31,8 @@ import {
   useGetUsersQuery,
 } from "../../store/api/user-slice";
 import axios from "axios";
+import { Textarea } from "../../components/ui/textarea";
+import { toast } from "sonner";
 
 const home = () => {
   const { data: users, isLoading } = useGetUsersQuery({});
@@ -63,11 +65,23 @@ const home = () => {
                 <div className="space-y-2 w-full">
                   <h1>Job: {user.job}</h1>
                   <h1>Gender: {user.gender}</h1>
+                  <h1 className="pb-[10px]">Bio: {user.bio}</h1>
                   <div className="w-full flex items-center gap-5">
                     <Button
                       variant={"destructive"}
                       className="w-full"
-                      onClick={() => deleteUser(user.id as number)}
+                      onClick={() => {
+                        const toastId = toast.loading("Adding user...", {
+                          position: "top-center",
+                        });
+                        deleteUser(user.id as number)
+                          .unwrap()
+                          .then(() => {
+                            toast.success("User deleted successfully", {
+                              id: toastId,
+                            });
+                          });
+                      }}
                       disabled={isLoadingDelete}
                     >
                       Delete
@@ -87,6 +101,9 @@ const home = () => {
                         <form
                           onSubmit={async (e) => {
                             e.preventDefault();
+                            const toastId = toast.loading("Updating user...", {
+                              position: "top-center",
+                            });
                             const formData = new FormData(
                               e.target as HTMLFormElement
                             );
@@ -105,7 +122,17 @@ const home = () => {
                                 editUser({
                                   id: user.id,
                                   body: newData as IUser,
-                                });
+                                })
+                                  .unwrap()
+                                  .then(() => {
+                                    toast.success(
+                                      "User creatsed successfully",
+                                      {
+                                        position: "top-center",
+                                        id: toastId,
+                                      }
+                                    );
+                                  });
                                 closeDialog.current?.click();
                               });
                           }}
@@ -256,9 +283,24 @@ const home = () => {
                                 </Select>
                               </div>
                             )}
+                            <div className="flex flex-col space-y-1.5">
+                              <Label htmlFor="bio">Bio</Label>
+                              <Textarea
+                                required
+                                id="bio"
+                                name="bio"
+                                placeholder="Enter bio"
+                                defaultValue={user.bio}
+                              />
+                            </div>
                           </div>
+
                           <DialogFooter className="py-4">
-                            <Button type="submit" className="w-full">
+                            <Button
+                              type="submit"
+                              className="w-full"
+                              disabled={isLoadingUpdate}
+                            >
                               Save changes
                             </Button>
                             <DialogClose

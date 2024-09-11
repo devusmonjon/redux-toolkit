@@ -21,6 +21,8 @@ import { useState } from "react";
 import { IUser } from "../../interfaces";
 import { useAddUserMutation } from "../../store/api/user-slice";
 import axios from "axios";
+import { Textarea } from "../../components/ui/textarea";
+import { toast } from "sonner";
 
 const Create = (): JSX.Element => {
   const [job, setJob] = useState<string | "other">();
@@ -42,6 +44,9 @@ const Create = (): JSX.Element => {
           <CardContent>
             <form
               onSubmit={async (e) => {
+                const toastId = toast.loading("Adding user...", {
+                  position: "top-center",
+                });
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
                 const data = Object.fromEntries(formData.entries());
@@ -56,8 +61,18 @@ const Create = (): JSX.Element => {
                     };
                     console.log(newData);
                     // @ts-ignore
-                    addUser(newData as IUser);
+                    addUser(newData as IUser)
+                      .unwrap()
+                      .then(() => {
+                        toast.success("User creatsed successfully", {
+                          position: "top-center",
+                          id: toastId,
+                        });
+                        console.log("success");
+                      });
                     navigate("/");
+                    // @ts-ignore
+                    e.target?.reset();
                   });
               }}
             >
@@ -194,6 +209,15 @@ const Create = (): JSX.Element => {
                     </Select>
                   </div>
                 )}
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    required
+                    id="bio"
+                    name="bio"
+                    placeholder="Enter bio"
+                  />
+                </div>
               </div>
               <CardFooter className="flex justify-between w-full p-0 py-4">
                 <Button variant="outline" onClick={() => navigate(-1)}>

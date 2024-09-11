@@ -6,4 +6,5 @@ export interface IUser {
   age: number;
   image: string;
   gender: "male" | "female";
+  bio: string;
 }
