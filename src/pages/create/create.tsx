@@ -23,6 +23,8 @@ import { useDispatch } from "react-redux";
 import { addUser } from "../../store/user-slice/users";
 import { IUser } from "../../interfaces";
 import { imageToBase64 } from "../../helpers/image-codec";
+import { useAddUserMutation } from "../../store/api/user-slice";
+import axios from "axios";
 
 const Create = (): JSX.Element => {
   const [job, setJob] = useState<string | "other">();
@@ -33,10 +35,12 @@ const Create = (): JSX.Element => {
 
   const dispatch = useDispatch();
 
+  const [addUser, { isLoading }] = useAddUserMutation();
+
   return (
     <div className="container">
       <div className="mt-10">
-        <Card className="mx-auto w-[350px]">
+        <Card className="mx-auto w-[350px] border-none dark:bg-gray-900">
           <CardHeader>
             <CardTitle>Add User</CardTitle>
             <CardDescription>Add user to your project</CardDescription>
@@ -47,15 +51,20 @@ const Create = (): JSX.Element => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
                 const data = Object.fromEntries(formData.entries());
-                const newData = {
-                  id: new Date().getTime(),
-                  ...data,
-                  image: await imageToBase64(image!),
-                };
-                console.log(newData);
-                // @ts-ignore
-                dispatch(addUser(newData as IUser));
-                navigate("/");
+                const imageFormData = new FormData();
+                imageFormData.append("photo", image!);
+                axios
+                  .post("https://deepwork.uz/", imageFormData)
+                  .then((res) => {
+                    const newData = {
+                      ...data,
+                      image: res.data.url,
+                    };
+                    console.log(newData);
+                    // @ts-ignore
+                    addUser(newData as IUser);
+                    navigate("/");
+                  });
               }}
             >
               <div className="grid w-full items-center gap-4">
@@ -78,17 +87,6 @@ const Create = (): JSX.Element => {
                   />
                 </div>
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="age">Age</Label>
-                  <Input
-                    required
-                    id="age"
-                    name="age"
-                    placeholder="Enter your age"
-                    type="number"
-                    min={0}
-                  />
-                </div>
-                <div className="flex flex-col space-y-1.5">
                   {image ? (
                     <img
                       src={URL.createObjectURL(image)}
@@ -98,7 +96,7 @@ const Create = (): JSX.Element => {
                   ) : (
                     <Label
                       htmlFor="photo"
-                      className="w-full h-[200px] rounded-lg my-5 bg-slate-900"
+                      className="w-full h-[200px] rounded-lg my-5 bg-slate-300"
                     ></Label>
                   )}
                   <Label htmlFor="photo">Photo</Label>
@@ -217,4 +215,4 @@ const Create = (): JSX.Element => {
   );
 };
 
-export default withLayout(Create);
+export default Create;

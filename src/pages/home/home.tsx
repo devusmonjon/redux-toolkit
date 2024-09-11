@@ -9,7 +9,6 @@ import {
 import { Button } from "../../components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { IUser } from "../../interfaces";
-import { deleteUser, updateUser } from "../../store/user-slice/users";
 import {
   Dialog,
   DialogContent,
@@ -29,11 +28,15 @@ import {
 } from "../../components/ui/select";
 import { useRef, useState } from "react";
 import { imageToBase64 } from "../../helpers/image-codec";
+import {
+  useDeleteUserMutation,
+  useEditUserMutation,
+  useGetUsersQuery,
+} from "../../store/api/user-slice";
+import axios from "axios";
 
 const home = () => {
-  const users = useSelector(
-    (state: { users: { value: IUser[] } }) => state.users.value
-  );
+  const { data: users, isLoading } = useGetUsersQuery({});
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -43,11 +46,14 @@ const home = () => {
   const [image, setImage] = useState<File>();
   const closeDialog = useRef<HTMLButtonElement>(null);
 
+  const [editUser, { isLoading: isLoadingUpdate }] = useEditUserMutation();
+  const [deleteUser, { isLoading: isLoadingDelete }] = useDeleteUserMutation();
+
   return (
     <section id="home">
       <div className="container">
-        <div className="grid grid-cols-4 py-4 gap-4">
-          {users.map((user: IUser) => (
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 py-4 gap-4">
+          {users?.map((user: IUser) => (
             <Card className="flex flex-col space-y-3 relative" key={user.id}>
               <CardContent className="w-full">
                 <img
@@ -67,7 +73,7 @@ const home = () => {
                     <Button
                       variant={"destructive"}
                       className="w-full"
-                      onClick={() => dispatch(deleteUser(user as IUser))}
+                      onClick={() => deleteUser(user.id as number)}
                     >
                       Delete
                     </Button>
@@ -86,16 +92,23 @@ const home = () => {
                               e.target as HTMLFormElement
                             );
                             const data = Object.fromEntries(formData.entries());
-                            const newData = {
-                              id: user.id,
-                              ...data,
-                              image: await imageToBase64(image!),
-                            };
-                            console.log(newData);
-                            // @ts-ignore
-                            dispatch(updateUser(newData as IUser));
-                            closeDialog.current?.click();
-                            navigate("/");
+                            const imageFormData = new FormData();
+                            imageFormData.append("photo", image!);
+                            axios
+                              .post("https://deepwork.uz/", imageFormData)
+                              .then((res) => {
+                                const newData = {
+                                  ...data,
+                                  image: res.data.url,
+                                };
+                                console.log(newData);
+                                // @ts-ignore
+                                editUser({
+                                  id: user.id,
+                                  body: newData as IUser,
+                                });
+                                closeDialog.current?.click();
+                              });
                           }}
                         >
                           <div className="grid w-full items-center gap-4">
@@ -117,18 +130,6 @@ const home = () => {
                                 name="last_name"
                                 placeholder="Enter your surname"
                                 defaultValue={user.last_name}
-                              />
-                            </div>
-                            <div className="flex flex-col space-y-1.5">
-                              <Label htmlFor="age">Age</Label>
-                              <Input
-                                required
-                                id="age"
-                                name="age"
-                                placeholder="Enter your age"
-                                type="number"
-                                min={0}
-                                defaultValue={user.age}
                               />
                             </div>
                             <div className="flex flex-col space-y-1.5">
@@ -274,11 +275,9 @@ const home = () => {
               </CardFooter>
             </Card>
           ))}
-          {users.length === 0 && <p>No users</p>}
+          {users?.length === 0 && <p>No users</p>}
+          {isLoading && <p>Loading</p>}
         </div>
-        <Button className="w-full" onClick={() => navigate("/create")}>
-          Create user
-        </Button>
       </div>
     </section>
   );
