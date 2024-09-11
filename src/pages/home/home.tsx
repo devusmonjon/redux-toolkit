@@ -125,13 +125,10 @@ const home = () => {
                                 })
                                   .unwrap()
                                   .then(() => {
-                                    toast.success(
-                                      "User creatsed successfully",
-                                      {
-                                        position: "top-center",
-                                        id: toastId,
-                                      }
-                                    );
+                                    toast.success("User updated successfully", {
+                                      position: "top-center",
+                                      id: toastId,
+                                    });
                                   });
                                 closeDialog.current?.click();
                               });

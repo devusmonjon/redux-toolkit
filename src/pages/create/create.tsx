@@ -64,7 +64,7 @@ const Create = (): JSX.Element => {
                     addUser(newData as IUser)
                       .unwrap()
                       .then(() => {
-                        toast.success("User creatsed successfully", {
+                        toast.success("User created successfully", {
                           position: "top-center",
                           id: toastId,
                         });
